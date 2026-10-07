@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mariadb:11.8
+    environment:
+      MARIADB_DATABASE: secu_qna
+      MARIADB_USER: secu_qna
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    volumes:
+      - db_data:/var/lib/mysql
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: secu_qna
+      DB_USER: secu_qna
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      FLAG: ${FLAG:?Set FLAG}
+      JAVA_TOOL_OPTIONS: >-
+        -Dcom.sun.jndi.ldap.object.trustURLCodebase=false
+        -Dcom.sun.jndi.rmi.object.trustURLCodebase=false
+        -Dcom.sun.jndi.ldap.object.trustSerialData=false
+        -Djdk.jndi.object.factoriesFilter=!*
+        -Djdk.jndi.ldap.object.factoriesFilter=!*
+        -Dsun.rmi.transport.tcp.handshakeTimeout=2000
+        -Dsun.rmi.transport.tcp.responseTimeout=2000
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  db_data:

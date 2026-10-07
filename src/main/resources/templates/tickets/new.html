@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New ticket · Secu Q&amp;A</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <a class="brand" th:href="@{/tickets}">Secu Q&amp;A</a>
+        <nav class="nav" aria-label="Main">
+          <a th:href="@{/tickets}">My tickets</a>
+          <a th:href="@{/account}">Account</a>
+          <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">Sign out</button>
+          </form>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <h1>New ticket</h1>
+      <p class="lead">Tell us what you need help with.</p>
+
+      <section class="panel">
+        <p class="alert" role="alert" th:if="${error}" th:text="${error}"></p>
+        <form th:action="@{/tickets}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <div class="field">
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" maxlength="160" required th:value="${subject}">
+          </div>
+          <div class="field">
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+              <option th:each="item : ${categories}" th:value="${item}"
+                      th:text="${item}" th:selected="${item == category}"></option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="content">Details</label>
+            <textarea id="content" name="content" maxlength="10000" required th:text="${content}"></textarea>
+          </div>
+          <button class="button" type="submit">Submit ticket</button>
+        </form>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/footer :: notice}"></footer>
+  </body>
+</html>

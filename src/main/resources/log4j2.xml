@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR">
+    <Appenders>
+        <Console name="AuditConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{ISO8601} %-5p [%c] %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="ticket-audit" level="info" additivity="false">
+            <AppenderRef ref="AuditConsole"/>
+        </Logger>
+        <Root level="off"/>
+    </Loggers>
+</Configuration>

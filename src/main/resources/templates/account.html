@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Account · Secu Q&amp;A</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <a class="brand" th:href="@{/tickets}">Secu Q&amp;A</a>
+        <nav class="nav" aria-label="Main">
+          <a th:href="@{/tickets}">My tickets</a>
+          <a th:href="@{/account}">Account</a>
+          <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">Sign out</button>
+          </form>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <h1>Account</h1>
+      <section class="panel">
+        <p>
+          <strong>Username</strong><br>
+          <span th:text="${account.username}"></span>
+        </p>
+        <p>
+          <strong>Joined</strong><br>
+          <span th:text="${#temporals.format(account.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+        </p>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/footer :: notice}"></footer>
+  </body>
+</html>

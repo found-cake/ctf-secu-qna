@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ticket · Secu Q&amp;A</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <a class="brand" th:href="@{/tickets}">Secu Q&amp;A</a>
+        <nav class="nav" aria-label="Main">
+          <a th:href="@{/tickets}">My tickets</a>
+          <a th:href="@{/account}">Account</a>
+          <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">Sign out</button>
+          </form>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <p><a th:href="@{/tickets}">← My tickets</a></p>
+      <h1 class="ticket-title" th:text="${ticket.subject}"></h1>
+      <p class="meta">
+        <span th:text="${ticket.category}"></span> ·
+        <time th:text="${#temporals.format(ticket.createdAt, 'yyyy-MM-dd HH:mm')}"></time> ·
+        Ticket #<span th:text="${ticket.id}"></span>
+      </p>
+      <section class="panel">
+        <h2>Request details</h2>
+        <div class="ticket-body" th:text="${ticket.content}"></div>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/footer :: notice}"></footer>
+  </body>
+</html>
