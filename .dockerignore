@@ -3,5 +3,6 @@
 build
 poc
 .env
+.db.env*
 start.sh
 *.log
