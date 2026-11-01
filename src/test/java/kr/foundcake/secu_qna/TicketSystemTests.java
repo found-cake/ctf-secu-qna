@@ -11,6 +11,8 @@ import kr.foundcake.secu_qna.service.TicketService;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -184,16 +186,28 @@ class TicketSystemTests {
 
     @Test
     void slowLookupsCannotOccupyEveryRequestThread() throws Exception {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        try (ServerSocket listener = new ServerSocket(0, 2, InetAddress.getLoopbackAddress())) {
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        try (ServerSocket listener = new ServerSocket(0, 5, InetAddress.getLoopbackAddress())) {
             listener.setSoTimeout(5000);
             String subject = "${jndi:ldap://127.0.0.1:" + listener.getLocalPort() + "/slow}";
-            Future<Boolean> first = executor.submit(() -> audit.tryLogCreated("alice1", 1L, subject));
-            Future<Boolean> second = executor.submit(() -> audit.tryLogCreated("alice1", 2L, subject));
-            try (Socket firstConnection = listener.accept(); Socket secondConnection = listener.accept()) {
-                assertThat(audit.tryLogCreated("alice1", 3L, "normal")).isFalse();
-                assertThat(first.get(6, TimeUnit.SECONDS)).isTrue();
-                assertThat(second.get(6, TimeUnit.SECONDS)).isTrue();
+            List<Future<Boolean>> attempts = new ArrayList<>();
+            for (long id = 1; id <= 5; id++) {
+                long ticketId = id;
+                attempts.add(executor.submit(() -> audit.tryLogCreated("alice1", ticketId, subject)));
+            }
+            List<Socket> connections = new ArrayList<>();
+            try {
+                for (int i = 0; i < 5; i++) {
+                    connections.add(listener.accept());
+                }
+                assertThat(audit.tryLogCreated("alice1", 6L, "normal")).isFalse();
+            } finally {
+                for (Socket connection : connections) {
+                    connection.close();
+                }
+            }
+            for (Future<Boolean> attempt : attempts) {
+                assertThat(attempt.get(6, TimeUnit.SECONDS)).isTrue();
             }
         } finally {
             executor.shutdownNow();

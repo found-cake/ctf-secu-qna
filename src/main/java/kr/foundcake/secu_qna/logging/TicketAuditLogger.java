@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TicketAuditLogger {
     private static final Logger AUDIT = LogManager.getLogger("ticket-audit");
-    private final Semaphore slots = new Semaphore(2);
+    private final Semaphore slots = new Semaphore(5);
 
     public boolean tryLogCreated(String username, Long ticketId, String subject) {
         if (!slots.tryAcquire()) {
